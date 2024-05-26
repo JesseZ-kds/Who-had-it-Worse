@@ -1,1 +1,13 @@
+{
+  "Demeter's Revenge": {
+    "value": 1,
+    "text": "",
+    "question": "",
 
+    "colour": {
+      "background": "0xac75d1",
+      "circle": "0x8c52b3",
+      "text": "0xFFFFFF"
+    }
+  }
+}
