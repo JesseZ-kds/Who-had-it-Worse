@@ -14,6 +14,10 @@ rightApp.stage.addChild(rightGraphics);
 
 //
 
+const delay = (delayInms) => {
+  return new Promise(resolve => setTimeout(resolve, delayInms));
+};
+
 const width = window.innerWidth / 2;
 const height = window.innerHeight;
 
@@ -46,10 +50,15 @@ function handleFrame(element) {
     graphics.removeChildren();
     graphics.clear();
 
-    drawBackground(frame, graphics, isLeft)
-    drawRandomCircles(graphics, 40, 75, 150, frames[frame].colour.circle, app.renderer);
-    displayText(graphics, frame, frames[frame].colour.text, height / 2, width, width / 20);
-    displayText(graphics, `Did ${frames[frame].person} have it worse?`, frames[frame].colour.text, height * 1.5, width, width / 25);
-    displayText(graphics, frames[frame].text, frames[frame].colour.text, height, width, width / 35);
+    drawBackground(isLeft, frame, graphics);
+}
 
+function drawBackground(isLeft, frame, graphics){
+    for (let h = 0; h <= height; h++) {
+        graphics.beginFill(0xFFF);
+        if (isLeft)
+            graphics.drawRect(0, 0, width - 10, h)
+
+        await delay(100)
+    }
 }
