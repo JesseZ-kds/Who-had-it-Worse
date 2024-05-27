@@ -9,8 +9,10 @@ Watch both the **Ted Talks** given.
 Compare them and decide **"Who had it Worse?"**
 
 # Contribution
-Thanks to **Pixi.js** (API v8) for the Framework \n
-Thanks to **Ted Talk** for the Research \n
+Thanks to **Pixi.js** (API v8) for the Framework
+
+Thanks to **Ted Talk** for the Research
+
 Thanks to **Higher or Lower** for the Game Idea
 
 **CODE** Written by Me
