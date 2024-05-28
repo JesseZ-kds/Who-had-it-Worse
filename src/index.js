@@ -1,32 +1,40 @@
-// HTML elements
 const left = document.getElementById('left');
 const right = document.getElementById('right');
 
-// PIXI applications
-const leftApp = new PIXI.Application({ width: window.innerWidth / 2, height: window.innerHeight });
-const rightApp = new PIXI.Application({ width: window.innerWidth / 2, height: window.innerHeight });
+const leftApp = new PIXI.Application();
+const rightApp = new PIXI.Application();
 
-// Graphics objects
-let leftGraphics = new PIXI.Graphics();
-let rightGraphics = new PIXI.Graphics();
+let leftVideoContainer = new PIXI.Container();
+let rightVideoContainer = new PIXI.Container();
 
-// Append views to DOM
+let leftVideo = new PIXI.Sprite();
+let rightVideo = new PIXI.Sprite();
+
+leftVideoContainer.addChild(leftVideo);
+rightVideoContainer.addChild(rightVideo);
+
+leftApp.stage.addChild(leftVideoContainer);
+rightApp.stage.addChild(rightVideoContainer);
+
 left.appendChild(leftApp.view);
-leftApp.stage.addChild(leftGraphics);
-
 right.appendChild(rightApp.view);
-rightApp.stage.addChild(rightGraphics);
 
-// Import frames
-let frames = require('./frames.json');
-let availableFrames = Object.keys(frames);
+let frames = {};
+let availableFrames = [];
 
-// Delay function
-const delay = (delayInms) => {
-  return new Promise(resolve => setTimeout(resolve, delayInms));
-};
+async function fetchFrames() {
+    try {
+        let response = await fetch('./frames.json');
+        frames = await response.json();
+        availableFrames = Object.keys(frames);
+        resizeCanvases();
+    } catch (error) {
+        console.error('Error fetching frames:', error);
+    }
+}
 
-// Resize event handler
+fetchFrames();
+
 function resizeCanvases() {
     const width = window.innerWidth / 2;
     const height = window.innerHeight;
@@ -34,41 +42,74 @@ function resizeCanvases() {
     leftApp.renderer.resize(width, height);
     rightApp.renderer.resize(width, height);
 
-    leftGraphics.clear();
-    rightGraphics.clear();
-
     handleFrame(left, width, height);
     handleFrame(right, width, height);
 }
 
-// Handle frame
 function handleFrame(element, width, height) {
     if (!element.getAttribute('frame')) {
-        element.setAttribute('frame', getFrame(availableFrames));
+        element.setAttribute('frame', getFrame());
     }
 
     let frame = element.getAttribute('frame');
     let isLeft = element.id === 'left';
 
-    let graphics = isLeft ? leftGraphics : rightGraphics;
+    let app = isLeft ? leftApp : rightApp;
 
-    graphics.clear();
-    drawBackground(isLeft, frame, graphics, width, height);
+    app.renderer.backgroundColor = frames[frame].colour.background;
+    video(isLeft, width, height, frame, app);
 }
 
-// Draw background
-function drawBackground(isLeft, frame, graphics, width, height) {
-    graphics.beginFill(0xFFF);
-    graphics.drawRect(0, 0, width - (isLeft ? 10 : 0), height);
-    graphics.endFill();
+function getFrame() {
+    if (availableFrames.length === 0) {
+        console.error('No available frames left.');
+        return null;
+    }
+
+    const index = Math.floor(Math.random() * availableFrames.length);
+    const frame = availableFrames[index];
+    availableFrames.splice(index, 1);
+    return frame;
 }
 
-// Initialize and resize on window resize
+function video(isLeft, width, height, frame, app) {
+    let videoPath = frames[frame]["video"];
+    let videoTexture = PIXI.Texture.from(videoPath);
+
+    let element = isLeft ? leftVideo : rightVideo;
+
+    element.texture = videoTexture;
+    element.anchor.set(0.5);
+    element.x = app.renderer.width / 2;
+    element.y = app.renderer.height / 2;
+
+    element.width = width / 2;
+    element.height = height / 4;
+
+    element.interactive = true;
+    let videoElement = element.texture.baseTexture.resource.source;
+
+
+    videoElement.setAttribute("data-isPaused", "true");
+
+    videoElement.addEventListener('loadedmetadata', () => {
+        togglePlayPause(videoElement);
+    });
+
+    element.on('pointerdown', () => {
+        togglePlayPause(videoElement);
+    });
+}
+
+function togglePlayPause(videoElement) {
+    let isPaused = videoElement.getAttribute("data-isPaused") === "true";
+    if (isPaused) {
+        videoElement.play();
+        videoElement.setAttribute("data-isPaused", "false");
+    } else {
+        videoElement.pause();
+        videoElement.setAttribute("data-isPaused", "true");
+    }
+}
+
 window.addEventListener('resize', resizeCanvases);
-resizeCanvases();
-
-// Function to get a random frame
-function getFrame(frames) {
-    const randomIndex = Math.floor(Math.random() * frames.length);
-    return frames[randomIndex];
-}
