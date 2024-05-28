@@ -7,6 +7,7 @@ Comparison from Myth to Myth.
 
 
 It's simple.
+
 Watch both the **Ted Talks** given.  
 Compare them and decide **"Who had it Worse?"**
 
