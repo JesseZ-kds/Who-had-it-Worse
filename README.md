@@ -1,5 +1,6 @@
 # Who-had-it-Worse
 It's really simple.
+
 There are 2 **Ted Talks** given.
 
 Watch them and decide **"Who had it Worse?"**
