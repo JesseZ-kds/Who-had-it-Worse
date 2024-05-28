@@ -1,7 +1,7 @@
 # Who-had-it-Worse
 It's really simple.
-Watch both the **Ted Talks** given.            
-Compare them and decide **"Who had it Worse?"**
+There are 2 **Ted Talks** given.
+Watch them and decide **"Who had it Worse?"**
 
 # Contributions
 Thanks to **Pixi.js** (API v8) for the Framework
