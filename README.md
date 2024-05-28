@@ -1,6 +1,4 @@
 # Who-had-it-Worse
-A Webgame inspired by "Higher or Lower".
-
 Greek Mythology is a key part of the game.
 Comparison from Myth to Myth.
 
