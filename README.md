@@ -1,6 +1,6 @@
 # Who-had-it-Worse
 It's really simple.
-Watch both the **Ted Talks** given.  
+Watch both the **Ted Talks** given.            
 Compare them and decide **"Who had it Worse?"**
 
 # Contributions
@@ -10,3 +10,4 @@ Thanks to **Ted Talk** for the Research
 
 Thanks to **Higher or Lower** for the Game Idea
 
+**Graphics** and **Programmed** by Me
