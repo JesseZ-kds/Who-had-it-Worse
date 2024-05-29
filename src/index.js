@@ -24,7 +24,7 @@ let availableFrames = [];
 
 async function fetchFrames() {
     try {
-        let response = await fetch('./frames.json');
+        let response = await fetch('./frame.json');
         frames = await response.json();
         availableFrames = Object.keys(frames);
         resizeCanvases();
