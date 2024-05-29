@@ -13,3 +13,9 @@ Thanks to **Ted Talk** for the Research
 Thanks to **Higher or Lower** for the Game Idea
 
 **Graphics** and **Programmed** by Me
+
+
+
+-
+
+https://jessez-kds.github.io/Who-had-it-Worse/src/index.html
