@@ -8,5 +8,15 @@
       "background": "0xac75d1",
       "text": "0xFFFFFF"
     }
+  },
+    "Hi": {
+    "value": 2,
+    "video": "",
+    "question": "",
+
+    "colour": {
+      "background": "0xae75d1",
+      "text": "0xFFFFFF"
+    }
   }
 }
