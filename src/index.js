@@ -1,3 +1,5 @@
+//Should work
+
 document.addEventListener('DOMContentLoaded', function() {
     const canvasElement = document.getElementById("game");
     const app = new PIXI.Application({ view: canvasElement });
