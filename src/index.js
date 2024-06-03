@@ -1,63 +1,126 @@
-const left = document.getElementById('left');
-const right = document.getElementById('right');
+const canvasElement = document.getElementById("game");
+const app = new PIXI.Application({ view: canvasElement });
 
-const leftApp = new PIXI.Application();
-const rightApp = new PIXI.Application();
+let graphics = new PIXI.Graphics();
+let textContainer = new PIXI.Container();
+let imgContainer = new PIXI.Container();
 
-let leftVideoContainer = new PIXI.Container();
-let rightVideoContainer = new PIXI.Container();
-
-let leftVideo = new PIXI.Sprite();
-let rightVideo = new PIXI.Sprite();
-
-leftVideoContainer.addChild(leftVideo);
-rightVideoContainer.addChild(rightVideo);
-
-leftApp.stage.addChild(leftVideoContainer);
-rightApp.stage.addChild(rightVideoContainer);
-
-left.appendChild(leftApp.view);
-right.appendChild(rightApp.view);
+app.stage.addChild(graphics);
+app.stage.addChild(textContainer);
+app.stage.addChild(imgContainer);
 
 let frames = {};
 let availableFrames = [];
+let frameInUse = [];
+
+// Create a new PIXI.Loader instance
+const loader = new PIXI.Loader();
+
+async function loadAssets() {
+    try {
+        await new Promise((resolve, reject) => {
+            loader.add('logo', 'img/logo.png').load((loader, resources) => {
+                resolve(resources);
+            });
+        });
+        console.log(loader.resources.logo.texture);
+    } catch (error) {
+        console.error('Error loading assets:', error);
+    }
+}
 
 async function fetchFrames() {
     try {
         let response = await fetch('./frame.json');
         frames = await response.json();
         availableFrames = Object.keys(frames);
-        resizeCanvases();
+        resizeApp();
     } catch (error) {
         console.error('Error fetching frames:', error);
     }
 }
 
 fetchFrames();
+loadAssets(); // Call loadAssets to start loading the logo
 
-function resizeCanvases() {
-    const width = window.innerWidth / 2;
-    const height = window.innerHeight;
+function resizeApp() {
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
 
-    leftApp.renderer.resize(width, height);
-    rightApp.renderer.resize(width, height);
+    app.renderer.resize(screenWidth, screenHeight);
+    graphics.clear();
+    textContainer.removeChildren();
 
-    handleFrame(left, width, height);
-    handleFrame(right, width, height);
+    // Redraw frames and intro on resize
+    handleFrames(screenWidth, screenHeight);
+    drawIntro(screenWidth, screenHeight);
 }
 
-function handleFrame(element, width, height) {
-    if (!element.getAttribute('frame')) {
-        element.setAttribute('frame', getFrame());
+function handleFrames(width, height) {
+    graphics.removeChildren(); // Clear previous frame drawings
+
+    if (frameInUse.length === 2) {
+        drawFrame(width, height, frames[frameInUse[0]], true);
+        drawFrame(width, height, frames[frameInUse[1]], false);
+    } else {
+        let frame1 = getFrame();
+        let frame2 = getFrame();
+        drawFrame(width, height, frames[frame1], true);
+        drawFrame(width, height, frames[frame2], false);
+    }
+}
+
+function drawFrame(width, height, frame, isFirst) {
+    if (!frame) return;
+
+    let color = rgb(frame.colour.r, frame.colour.g, frame.colour.b);
+    graphics.beginFill(color);
+
+    if (width > height) {
+        if (isFirst) {
+            graphics.drawRect(0, 0, width / 2, height);
+        } else {
+            graphics.drawRect(width / 2, 0, width / 2, height);
+        }
+    } else {
+        if (isFirst) {
+            graphics.drawRect(0, 0, width, height / 2);
+        } else {
+            graphics.drawRect(0, height / 2, width, height / 2);
+        }
     }
 
-    let frame = element.getAttribute('frame');
-    let isLeft = element.id === 'left';
+    graphics.endFill();
+}
 
-    let app = isLeft ? leftApp : rightApp;
+function drawIntro(width, height) {
+    graphics.beginFill(0x000000, 0.5);
+    graphics.drawRect(0, 0, width, height);
+    graphics.endFill();
 
-    app.renderer.backgroundColor = frames[frame].colour.background;
-    video(isLeft, width, height, frame, app);
+    let sWidth = width / 3;
+    let sHeight = height / 2;
+    let cornerRadius = 20;
+
+    graphics.beginFill(0x000000);
+    graphics.drawRoundedRect(width / 2 - sWidth / 2, height / 2 - sHeight / 2, sWidth, sHeight, cornerRadius);
+    graphics.endFill();
+
+    // Text styles
+    let titleStyle = { fontFamily: 'Arial', fontSize: Math.floor(width * height / 50000), fill: 'white', align: 'center', fontStyle: 'italic' };
+    let mainTextStyle = { fontFamily: 'Arial', fontSize: Math.floor(width * height / 75000), fill: 'white', align: 'center', fontStyle: 'italic' };
+
+    // Title text
+    let titleText = new PIXI.Text('Who had it Worse?', new PIXI.TextStyle(titleStyle));
+    titleText.anchor.set(0.5);
+    titleText.position.set(width / 2, height / 2 - sHeight / 4);
+
+    // Main text
+    let mainText = new PIXI.Text("It's Simple. \n Watch the 2 Ted Talks. \n Compare them and choose \n \"Who had it Worse?\"", new PIXI.TextStyle(mainTextStyle));
+    mainText.anchor.set(0.5);
+    mainText.position.set(width / 2, height / 2);
+
+    textContainer.addChild(titleText, mainText);
 }
 
 function getFrame() {
@@ -69,47 +132,12 @@ function getFrame() {
     const index = Math.floor(Math.random() * availableFrames.length);
     const frame = availableFrames[index];
     availableFrames.splice(index, 1);
+    frameInUse.push(frame);
     return frame;
 }
 
-function video(isLeft, width, height, frame, app) {
-    let videoPath = frames[frame]["video"];
-    let videoTexture = PIXI.Texture.from(videoPath);
-
-    let element = isLeft ? leftVideo : rightVideo;
-
-    element.texture = videoTexture;
-    element.anchor.set(0.5);
-    element.x = app.renderer.width / 2;
-    element.y = app.renderer.height / 2;
-
-    element.width = width / 2;
-    element.height = height / 4;
-
-    element.interactive = true;
-    let videoElement = element.texture.baseTexture.resource.source;
-
-
-    videoElement.setAttribute("data-isPaused", "true");
-
-    videoElement.addEventListener('loadedmetadata', () => {
-        togglePlayPause(videoElement);
-    });
-
-    element.on('pointerdown', () => {
-        togglePlayPause(videoElement);
-    });
+function rgb(r, g, b) {
+    return (r << 16) + (g << 8) + b;
 }
 
-function togglePlayPause(videoElement) {
-    let isPaused = videoElement.getAttribute("data-isPaused") === "true";
-    if (isPaused) {
-        videoElement.play();
-        videoElement.setAttribute("data-isPaused", "false");
-    } else {
-        videoElement.pause();
-        videoElement.setAttribute("data-isPaused", "true");
-    }
-}
-
-window.addEventListener('resize', resizeCanvases);
+window.addEventListener('resize', resizeApp);
