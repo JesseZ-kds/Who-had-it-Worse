@@ -19,7 +19,7 @@ const loader = new PIXI.Loader();
 async function loadAssets() {
     try {
         await new Promise((resolve, reject) => {
-            loader.add('logo', 'img/logo.png').load((loader, resources) => {
+            loader.add('logo', '../img/logo.png').load((loader, resources) => {
                 resolve(resources);
             });
         });
